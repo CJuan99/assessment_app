@@ -6,8 +6,6 @@ class Contact {
   Contact({this.user, this.phone, this.checkIn});
 }
 
-var time = contact.map((contact) => contact.checkIn).toList();
-
 final List<Contact> contact = [
   Contact(
       user: 'Chan Saw Lin',

@@ -1,10 +1,8 @@
 // import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:assessment_app/widget.dart';
 import 'dataset/dataset.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:assessment_app/dataset/dataset.dart';
 
 void main() {

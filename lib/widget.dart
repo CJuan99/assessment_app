@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:intl/intl.dart';
 
 class CardListTile extends StatelessWidget {
   final String user;
@@ -11,6 +11,7 @@ class CardListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var time = timeAgoSinceDate(checkIn);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -36,20 +37,18 @@ class CardListTile extends StatelessWidget {
               style:
                   TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
-            // Text(
-            //   time,
-            //   style: TextStyle(color: Colors.black),
-            // ),
+            Text(
+              timeAgoSinceDate(checkIn),
+              style: TextStyle(color: Colors.black),
+            ),
           ],
         ),
         subtitle: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Icon(
               Icons.phone,
               color: Colors.yellow,
-            ),
-            SizedBox(
-              width: 10,
             ),
             Text(
               phone,
@@ -62,9 +61,6 @@ class CardListTile extends StatelessWidget {
               Icons.calendar_today_rounded,
               color: Colors.yellow,
             ),
-            SizedBox(
-              width: 10,
-            ),
             Text(
               checkIn,
               style: TextStyle(color: Colors.white),
@@ -73,5 +69,32 @@ class CardListTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+String timeAgoSinceDate(String dateString, {bool numericDates = true}) {
+  DateTime notificationDate =
+      DateFormat("yyyy-MM-dd h:mm:ss").parse(dateString);
+  final date2 = DateTime.parse("2020-08-24 00:00:04Z");
+  final difference = date2.difference(notificationDate);
+
+  if ((difference.inDays / 7).floor() >= 1) {
+    return (numericDates) ? '1 week ago' : 'Last week';
+  } else if (difference.inDays >= 2) {
+    return '${difference.inDays} days ago';
+  } else if (difference.inDays >= 1) {
+    return (numericDates) ? '1 day ago' : 'Yesterday';
+  } else if (difference.inHours >= 2) {
+    return '${difference.inHours} hours ago';
+  } else if (difference.inHours >= 1) {
+    return (numericDates) ? '1 hour ago' : 'An hour ago';
+  } else if (difference.inMinutes >= 2) {
+    return '${difference.inMinutes} minutes ago';
+  } else if (difference.inMinutes >= 1) {
+    return (numericDates) ? '1 minute ago' : 'A minute ago';
+  } else if (difference.inSeconds >= 3) {
+    return '${difference.inSeconds} seconds ago';
+  } else {
+    return 'Just now';
   }
 }
