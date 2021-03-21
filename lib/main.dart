@@ -1,9 +1,10 @@
-// import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:assessment_app/widget.dart';
 import 'dataset/dataset.dart';
 import 'package:assessment_app/dataset/dataset.dart';
+
+import 'home.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,24 +28,91 @@ class ContactPage extends StatefulWidget {
 }
 
 class _ContactPageState extends State<ContactPage> {
-  var currentTime = DateTime.parse("2020-07-20 20:18:04Z");
-  //var time
-
-  void initState() {
-    super.initState();
-    generateRandom();
-  }
-
-  void generateRandom() {
-    setState(() {
-      contact.shuffle();
-    });
-  }
-
   Random rnd = new Random();
+  ScrollController _controller;
+  var listToShow = [];
+
+  @override
+  void initState() {
+    updateDataInList();
+    _controller = ScrollController();
+    _controller.addListener(_scrollListener);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_scrollListener);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  // void generateRandom() {
+  //   setState(() {
+  //     contact.shuffle();
+  //   });
+  // }
+
+  String _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Alert"),
+          content: Text(
+            "End of list",
+            style: TextStyle(
+              color: Colors.red,
+            ),
+          ),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            ElevatedButton(
+              child: Text("Okay"),
+              onPressed: () {
+                print('Okay');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _scrollListener() {
+    final _scrollThreshold = 200.0;
+    if (_controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange) {
+      setState(() {
+        _showDialog();
+      });
+    }
+
+    if (_controller.position.extentAfter < _scrollThreshold) {
+      setState(() {
+        showAllData();
+      });
+    }
+  }
+
+  void updateDataInList() {
+    listToShow =
+        new List.generate(5, (_) => contact[rnd.nextInt(contact.length)]);
+
+    // listToShow =
+    //     new List.generate(6, (_) => contact[rnd.nextInt(contact.length)])
+    //         .toSet()
+    //         .toList();
+  }
+
+  void showAllData() {
+    listToShow = contact;
+  }
 
   Future<List<Contact>> refreshContact() async {
     setState(() {
+      updateDataInList();
       contact.shuffle();
     });
     return null;
@@ -58,56 +126,16 @@ class _ContactPageState extends State<ContactPage> {
       ),
       body: RefreshIndicator(
         child: ListView.builder(
-          itemCount: 5,
+          controller: _controller,
+          itemCount: listToShow.length,
           itemBuilder: (context, index) => CardListTile(
             user: contact[index].user,
             phone: contact[index].phone,
             checkIn: contact[index].checkIn,
           ),
         ),
-        //),
-        // Expanded(
-        //   // flex: 1,
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //     children: [
-        //       ElevatedButton(
-        //         child: Text('Shuffle Cards'),
-        //         onPressed: () {
-        //           //TODO: Shuffle all cards and change the order of them in the UI
-        //           contact.shuffle();
-        //           setState(() {});
-        //         },
-        //       )
-        //     ],
-        //   ),
-        // )
         onRefresh: refreshContact,
       ),
     );
   }
 }
-// body: ListView.builder(itemBuilder: (context, index) {
-//   return Card(
-//     child: Padding(
-//         padding:
-//             EdgeInsets.only(top: 32, bottom: 32, left: 16, right: 16),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: <Widget>[
-//             Text('User: ',
-//                 style:
-//                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//             Text('Phone',
-//                 style:
-//                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//             Text('Check-in',
-//                 style:
-//                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-//           ],
-//         )),
-//   );
-// }),
-//     );
-//   }
-// }

@@ -27,7 +27,7 @@ class CardListTile extends StatelessWidget {
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(
           horizontal: 20.0,
-          vertical: 5.0,
+          vertical: 15.0,
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
