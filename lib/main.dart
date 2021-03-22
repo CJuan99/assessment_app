@@ -31,6 +31,7 @@ class _ContactPageState extends State<ContactPage> {
   Random rnd = new Random();
   ScrollController _controller;
   var listToShow = [];
+  List<Contact> items = [];
 
   @override
   void initState() {
@@ -99,7 +100,27 @@ class _ContactPageState extends State<ContactPage> {
   void updateDataInList() {
     listToShow =
         new List.generate(5, (_) => contact[rnd.nextInt(contact.length)]);
+    for (int i = 0; i < listToShow.length; i++) {
+      items.add(listToShow[i]);
+    }
 
+    items.sort((a, b) {
+      DateTime time1 = DateTime.parse(a.checkIn);
+      DateTime time2 = DateTime.parse(b.checkIn);
+      return time2.compareTo(time1);
+    });
+    print(items);
+    // items.sort((a, b) {
+    //   return a.checkIn.toString().compareTo(b.checkIn.toString());
+    // });
+
+    // listToShow = contact;
+    // listToShow
+    //     .sort((a, b) => a.checkIn.toString().compareTo(b.checkIn.toString()));
+    //
+    // setState(() {
+    //   return listToShow;
+    // });
     // listToShow =
     //     new List.generate(6, (_) => contact[rnd.nextInt(contact.length)])
     //         .toSet()
@@ -128,10 +149,70 @@ class _ContactPageState extends State<ContactPage> {
         child: ListView.builder(
           controller: _controller,
           itemCount: listToShow.length,
-          itemBuilder: (context, index) => CardListTile(
-            user: contact[index].user,
-            phone: contact[index].phone,
-            checkIn: contact[index].checkIn,
+          itemBuilder: (context, index) => Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(5),
+              ),
+            ),
+            color: Colors.orange,
+            elevation: 8.0,
+            margin: new EdgeInsets.symmetric(
+              horizontal: 10.0,
+              vertical: 10.0,
+            ),
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 15.0,
+              ),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    contact[index].user,
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    timeAgoSinceDate(contact[index].checkIn),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
+              subtitle: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    Icons.phone,
+                    color: Colors.yellow,
+                  ),
+                  Text(
+                    contact[index].phone,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    color: Colors.yellow,
+                  ),
+                  Text(
+                    contact[index].checkIn,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.share),
+                      onPressed: () {
+                        share(context, contact[index]);
+                      }),
+                ],
+              ),
+            ),
           ),
         ),
         onRefresh: refreshContact,
