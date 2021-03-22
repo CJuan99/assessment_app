@@ -32,9 +32,11 @@ class _ContactPageState extends State<ContactPage> {
   ScrollController _controller;
   var listToShow = [];
   List<Contact> items = [];
+  List<bool> isSelected;
 
   @override
   void initState() {
+    List _isSelected = [false, false];
     updateDataInList();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
@@ -47,12 +49,6 @@ class _ContactPageState extends State<ContactPage> {
     _controller.dispose();
     super.dispose();
   }
-
-  // void generateRandom() {
-  //   setState(() {
-  //     contact.shuffle();
-  //   });
-  // }
 
   String _showDialog() {
     showDialog(
@@ -144,6 +140,31 @@ class _ContactPageState extends State<ContactPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Random Contact'),
+        actions: [
+          ToggleButtons(
+            fillColor: Colors.grey,
+            selectedColor: Colors.yellow,
+            borderRadius: BorderRadius.circular(0),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(Icons.notifications_active),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(Icons.notifications_off_rounded),
+              ),
+            ],
+            onPressed: (int index) {
+              setState(() {
+                for (int i = 0; i < isSelected.length; i++) {
+                  isSelected[i] = i == index;
+                }
+              });
+            },
+            isSelected: isSelected,
+          ),
+        ],
       ),
       body: RefreshIndicator(
         child: ListView.builder(
