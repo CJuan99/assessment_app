@@ -2,6 +2,11 @@
 
 A new Flutter application.
 
+# Plugin
+intl: ^0.17.0
+share: ^0.6.5+4
+flutter_local_notifications: ^5.0.0
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
