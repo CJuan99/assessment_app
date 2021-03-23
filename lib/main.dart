@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:assessment_app/widget.dart';
-import 'dataset/dataset.dart';
+import 'package:assessment_app/function.dart';
 import 'package:assessment_app/dataset/dataset.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -41,13 +40,14 @@ class _ContactPageState extends State<ContactPage> {
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
     super.initState();
-    // var androidInitilize = new AndroidInitializationSettings('app_icon');
-    // var iOSinitilize = new IOSInitializationSettings();
-    // var initilizationsSettings = new InitializationSettings(
-    //     android: androidInitilize, iOS: iOSinitilize);
+    var androidInitilize = new AndroidInitializationSettings('app_icon');
+    var iOSinitilize = new IOSInitializationSettings();
+    var initilizationsSettings = new InitializationSettings(
+        android: androidInitilize, iOS: iOSinitilize);
     fltrNotification = new FlutterLocalNotificationsPlugin();
-    // fltrNotification.initialize(initilizationsSettings,
-    //     onSelectNotification: notificationSelected);
+    fltrNotification.initialize(
+      initilizationsSettings,
+    );
   }
 
   @override
