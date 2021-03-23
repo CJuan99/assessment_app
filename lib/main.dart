@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:assessment_app/widget.dart';
 import 'dataset/dataset.dart';
 import 'package:assessment_app/dataset/dataset.dart';
-
-import 'home.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,7 +15,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
       home: ContactPage(),
     );
   }
@@ -28,19 +26,28 @@ class ContactPage extends StatefulWidget {
 }
 
 class _ContactPageState extends State<ContactPage> {
+  FlutterLocalNotificationsPlugin fltrNotification;
+
   Random rnd = new Random();
   ScrollController _controller;
   var listToShow = [];
   List<Contact> items = [];
-  List<bool> isSelected;
+  bool switchControl = false;
+  var textHolder = 'No notification';
 
   @override
   void initState() {
-    List _isSelected = [false, false];
     updateDataInList();
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
     super.initState();
+    // var androidInitilize = new AndroidInitializationSettings('app_icon');
+    // var iOSinitilize = new IOSInitializationSettings();
+    // var initilizationsSettings = new InitializationSettings(
+    //     android: androidInitilize, iOS: iOSinitilize);
+    fltrNotification = new FlutterLocalNotificationsPlugin();
+    // fltrNotification.initialize(initilizationsSettings,
+    //     onSelectNotification: notificationSelected);
   }
 
   @override
@@ -48,33 +55,6 @@ class _ContactPageState extends State<ContactPage> {
     _controller.removeListener(_scrollListener);
     _controller.dispose();
     super.dispose();
-  }
-
-  String _showDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Alert"),
-          content: Text(
-            "End of list",
-            style: TextStyle(
-              color: Colors.red,
-            ),
-          ),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            ElevatedButton(
-              child: Text("Okay"),
-              onPressed: () {
-                print('Okay');
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   _scrollListener() {
@@ -135,108 +115,179 @@ class _ContactPageState extends State<ContactPage> {
     return null;
   }
 
+  Future _showNotification() async {
+    var andriodDetails = new AndroidNotificationDetails(
+        'Channel ID', "Cai Juan", "My channel",
+        importance: Importance.max);
+    var iOSDetails = new IOSNotificationDetails();
+    var generalNotificationDetails =
+        new NotificationDetails(android: andriodDetails, iOS: iOSDetails);
+
+    await fltrNotification.show(
+        0, 'Contact', 'Created a random contact', generalNotificationDetails,
+        payload: "Task");
+
+    var scheduledTime = DateTime.now().add(Duration(seconds: 5));
+
+    fltrNotification.schedule(1, 'Task', 'Scheduled Notification',
+        scheduledTime, generalNotificationDetails);
+  }
+
+  void toggleSwitch(bool value) {
+    if (switchControl == false) {
+      setState(() {
+        _showNotification();
+        switchControl = true;
+        textHolder = 'Notification is on';
+      });
+
+      print('Notification is on');
+
+      // Put your code here which you want to execute on Switch ON event.
+
+    } else {
+      setState(() {
+        switchControl = false;
+        textHolder = 'Notification is off';
+      });
+      print('No notification');
+      // Put your code here which you want to execute on Switch OFF event.
+    }
+  }
+
+  String _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Alert"),
+          content: Text(
+            "End of list",
+            style: TextStyle(
+              color: Colors.red,
+            ),
+          ),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            ElevatedButton(
+              child: Text("Okay"),
+              onPressed: () {
+                print('Okay');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Random Contact'),
         actions: [
-          ToggleButtons(
-            fillColor: Colors.grey,
-            selectedColor: Colors.yellow,
-            borderRadius: BorderRadius.circular(0),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(Icons.notifications_active),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(Icons.notifications_off_rounded),
-              ),
-            ],
-            onPressed: (int index) {
-              setState(() {
-                for (int i = 0; i < isSelected.length; i++) {
-                  isSelected[i] = i == index;
-                }
-              });
-            },
-            isSelected: isSelected,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12.0, 16.0, 12.0, 12.0),
+            child: Text(
+              'Random Contact',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text('Notification'),
+                Transform.scale(
+                    scale: 0.5,
+                    child: Switch(
+                      onChanged: toggleSwitch,
+                      value: switchControl,
+                      activeColor: Colors.blue,
+                      activeTrackColor: Colors.green,
+                      inactiveThumbColor: Colors.white,
+                      inactiveTrackColor: Colors.grey,
+                    )),
+              ],
+            ),
           ),
         ],
       ),
-      body: RefreshIndicator(
-        child: ListView.builder(
-          controller: _controller,
-          itemCount: listToShow.length,
-          itemBuilder: (context, index) => Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(5),
+      body: SafeArea(
+        child: RefreshIndicator(
+          child: ListView.builder(
+            controller: _controller,
+            itemCount: listToShow.length,
+            itemBuilder: (context, index) => Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(5),
+                ),
               ),
-            ),
-            color: Colors.orange,
-            elevation: 8.0,
-            margin: new EdgeInsets.symmetric(
-              horizontal: 10.0,
-              vertical: 10.0,
-            ),
-            child: ListTile(
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 15.0,
+              color: Colors.orange,
+              elevation: 8.0,
+              margin: new EdgeInsets.symmetric(
+                horizontal: 10.0,
+                vertical: 10.0,
               ),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    contact[index].user,
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    timeAgoSinceDate(contact[index].checkIn),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ],
-              ),
-              subtitle: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(
-                    Icons.phone,
-                    color: Colors.yellow,
-                  ),
-                  Text(
-                    contact[index].phone,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Icon(
-                    Icons.calendar_today_rounded,
-                    color: Colors.yellow,
-                  ),
-                  Text(
-                    contact[index].checkIn,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  IconButton(
-                      icon: Icon(Icons.share),
-                      onPressed: () {
-                        share(context, contact[index]);
-                      }),
-                ],
+              child: ListTile(
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 15.0,
+                ),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      contact[index].user,
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      timeAgoSinceDate(contact[index].checkIn),
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+                subtitle: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(
+                      Icons.phone,
+                      color: Colors.yellow,
+                    ),
+                    Text(
+                      contact[index].phone,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Icon(
+                      Icons.calendar_today_rounded,
+                      color: Colors.yellow,
+                    ),
+                    Text(
+                      contact[index].checkIn,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.share),
+                        onPressed: () {
+                          share(context, contact[index]);
+                        }),
+                  ],
+                ),
               ),
             ),
           ),
+          onRefresh: refreshContact,
         ),
-        onRefresh: refreshContact,
       ),
     );
   }
